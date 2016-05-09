@@ -20,3 +20,5 @@ executable numberlink-site
                      , warp
                      , wai
                      , http-types
+                     , filepath
+                     , bytestring
