@@ -1,0 +1,77 @@
+body {
+    text-align: center;
+}
+
+div.fieldSize {
+    margin-bottom: 20px;
+}
+
+div.fieldSize input {
+    width: 50px;
+}
+
+#field table {
+    border-collapse: collapse;
+    margin: auto;
+}
+
+#field > table td {
+    width: 50px;
+    height: 50px;
+    font-size: 16pt;
+    border: 2px #808080 solid;
+    padding: 0px;
+    text-align: center;
+}
+
+#field table td.current {
+    background-color: #00FF00;
+}
+
+#field table.innerTable td {
+    width: 25px;
+    height: 25px;
+    border-style: none;
+}
+
+#field table.innerTable td.right {
+    border-right: 1px #000 solid;
+}
+
+#field table.innerTable td.bottom {
+    border-bottom: 1px #000 solid;
+}
+
+#field table.innerTable td.left {
+    border-left: 1px #000 solid;
+}
+
+#field table.innerTable td.top {
+    border-top: 1px #000 solid;
+}
+
+#field table.innerTable td.top {
+    visibility: hidden;
+}
+
+#field input[type=number] {
+    width: 50px;
+    height: 50px;
+}
+
+#save, #solve {
+    margin: 10px;
+}
+
+#buttons: {
+    margin-top: 20px;
+}
+
+#cursor-left,
+#cursor-right {
+    margin: 0px 30px;
+}
+
+.disabled {
+    display: none;
+}

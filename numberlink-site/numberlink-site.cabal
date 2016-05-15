@@ -22,3 +22,5 @@ executable numberlink-site
                      , http-types
                      , filepath
                      , bytestring
+                     , blaze-builder
+                     , directory

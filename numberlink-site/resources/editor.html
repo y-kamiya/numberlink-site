@@ -1,0 +1,45 @@
+<html>
+<head>
+  <link href="bootstrap-arrows.css" type="text/css" rel="stylesheet">
+  <link href="editor.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+  <div class="fieldSize">
+      row: <input type="number" id="rowNum" value="5">
+      colomn: <input type="number" id="colNum" value="5">
+  </div>
+  <div id="field"></div>
+  <div id="buttons">
+      <div>
+          <button id='createTableButton' class="btn btn-lg btn-primary">Create Field</button>
+      </div>
+      <div class="disabled">
+          <button id="solve" class="btn btn-lg btn-primary">solve</button>
+      </div>
+      <div class="cursor disabled">
+          <div>
+              <span id='cursor-up' class="arrow-primary btn btn-lg"></span>
+          </div>
+          <div>
+              <span id='cursor-left' class="arrow-primary btn btn-lg" data-angle='270'></span>
+              <span id='cursor-right' class="arrow-primary btn btn-lg" data-angle='90'></span>
+          </div>
+          <div>
+              <span id='cursor-down' class="arrow-primary btn btn-lg" data-angle='180'></span>
+          </div>
+      </div>
+  </div>
+
+  <div>
+      <div id="input"></div>
+  </div>
+
+  <script src="jquery.js"></script>
+  <script src="bootstrap.js"></script>
+  <script src="bootstrap-arrows.js"></script>
+  <script>
+      $(function() { $('.arrow, [class^=arrow-]').bootstrapArrows(); });
+  </script>
+  <script src="input.js" type="text/javascript"></script>
+</body>
+</html>
