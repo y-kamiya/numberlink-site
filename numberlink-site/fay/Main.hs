@@ -19,11 +19,19 @@ console = ffi "console.log(%1)"
 charCodeOffset :: Int
 charCodeOffset = 96
 
+readInt :: T.Text -> Fay Int
+readInt = ffi "%1"
+
+chunksOf :: Int -> [Int] -> [[Int]]
+chunksOf n _ | n < 1 = []
+chunksOf n [] = []
+chunksOf n ns = take n ns : chunksOf n (drop n ns)
+
 main :: Fay ()
-main = do
-  select "#createTableButton" >>= onClick createTable
-  select "#save" >>= onClick save
-  select "#solve" >>= onClick initEditor
+main = ready $ do
+  buttonCreateField >>= onClick createTable
+  buttonSolve >>= onClick initEditor
+  initCursor
 
   -- Main.load
   -- select "#fielogld table td" >>= onClick start
@@ -36,33 +44,46 @@ createTable _ = do
   colNum <- select "#colNum" >>= getVal >>= readInt
   select "div.fieldSize input" >>= setAttr "disabled" "disabled"
   select "#field" >>= append (buildTable rowNum colNum)
-  select "#buttons div" >>= eq 0 >>= addClass "disabled"
-  select "#buttons div" >>= eq 1 >>= removeClass "disabled"
+  buttonCreateField >>= addClass "disabled"
+  buttonSolve >>= removeClass "disabled"
   return True
+  where
+    buildTable :: Int -> Int -> T.Text
+    buildTable row col = let contents = T.concat $ map buildRow $ chunksOf col [0..(row * col - 1)]
+                         in  T.concat ["<table>", contents, "</table>"]
 
-buildTable :: Int -> Int -> T.Text
-buildTable row col = let contents = T.concat $ map buildRow $ chunksOf col [0..(row * col - 1)]
-                     in  T.concat ["<table>", contents, "</table>"]
+    buildCell :: Int -> T.Text
+    buildCell id = T.concat ["<td id=\"c", T.pack (show id), "\"><input type=\"number\"></td>"]
 
-readInt :: T.Text -> Fay Int
-readInt = ffi "%1"
-
-chunksOf :: Int -> [Int] -> [[Int]]
-chunksOf n _ | n < 1 = []
-chunksOf n [] = []
-chunksOf n ns = take n ns : chunksOf n (drop n ns)
-
-buildRow :: [Int] -> T.Text
-buildRow ids  = T.concat ["<tr>", T.concat (map buildCell ids), "</tr>"]
-
-buildCell :: Int -> T.Text
-buildCell id = T.concat ["<td id=\"c", T.pack (show id), "\"><input type=\"number\"></td>"]
+    buildRow :: [Int] -> T.Text
+    buildRow ids  = T.concat ["<tr>", T.concat (map buildCell ids), "</tr>"]
 
 initEditor :: Event -> Fay Bool
-initEditor = undefined
+initEditor _ = do
+  -- save
+  select "#field table" >>= remove
+  select "#input" >>= addClass "disabled"
+  buttonSolve >>= addClass "disabled"
+  initCursor
+  -- load
+  return True
+
+buttonCreateField = select "#createTableButton"
+buttonSolve = select "#solve"
+buttonCursor = select "#cursors"
 
 initCursor :: Fay ()
-initCursor = undefined
+initCursor = do
+  buttonCursor >>= removeClass "disabled"
+  select "#cursor-up" >>= onClick (dispatch KeyUp)
+  select "#cursor-down" >>= onClick (dispatch KeyDown)
+  select "#cursor-left" >>= onClick (dispatch KeyLeft)
+  select "#cursor-right" >>= onClick (dispatch KeyRight)
+  return ()
+  where
+    dispatch :: KeyCode -> Event -> Fay Bool
+    dispatch _ _ = select "body" >>= trigger "keydown" >> return True
+
 
 save :: Event -> Fay Bool
 save = undefined
@@ -82,38 +103,3 @@ hasTable = undefined
 keyDown :: Fay ()
 keyDown = undefined
 
-
-
--- load :: Fay ()
--- load = do
---   input <- select "#input" >>= getText 
---   rowNum <- select "#rowNum" >>= getVal 
---   colNum <- select "#colNum" >>= getVal >>= text2Int
---   let innerTable =  "<table class=\"innerTable\"><tr><td></td><td></td></tr><tr><td></td><td></td></tr></table>"
---       tuples = zip [0..] (T.unpack input)
---       tdList = flip map tuples $ \(cellId, c) -> case c of
---                                                  '.' -> buildTd cellId innerTable
---                                                  otherwise -> buildTd cellId (show $ ord c - charCodeOffset)
---       table = "<table><tr>" ++ (concat $ intercalate ["</tr><tr>"] (chunk colNum tdList)) ++ "</tr></table>"
---   select "#field" >>= append (T.pack table)
---   return ()
---   where
---     buildTd :: Int -> String -> String
---     buildTd i s = "<tr><td id=\"" ++ show i ++ "\">" ++ s ++ "</td>"
---
--- start :: Event -> Fay Bool
--- start e = undefined
---
--- move :: Event -> Fay ()
--- move e = undefined
---
--- handler e = do
---   alert "hello"
---   return False
---
--- chunk :: Int -> [String] -> [[String]]
--- chunk n [] = [[]]
--- chunk n ss = take n ss : chunk n (drop n ss)
---
--- text2Int :: T.Text -> Fay Int
--- text2Int = ffi "%1"
