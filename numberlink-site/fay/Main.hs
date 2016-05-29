@@ -40,13 +40,15 @@ buildRow f ids  = T.concat ["<tr>", T.concat (map f ids), "</tr>"]
 
 main :: Fay ()
 main = ready $ do
+  isEmptyCell "#field"
+  isEmptyCell "#field > p"
+  setCurrentId noid
   buttonCreateField >>= onClick createTable
   buttonSolve >>= onClick initEditor
   -- select "body" >>= keydown print
 
-  -- Main.load
   -- select "#fielogld table td" >>= onClick start
-  -- select "body" >>= keydown move
+  select "body" >>= keydown move
   return ()
 
 createTable :: Event -> Fay Bool
@@ -128,20 +130,84 @@ start e = do
   a <- select "#field"
   el <- currentTarget e
   findElement el a >>= addClass "current"
+                   >>= getId >>= setCurrentId
   return True
 
-getNextId :: Fay ()
-getNextId = undefined
+getId :: JQuery -> Fay T.Text
+getId jq = do
+  id <- getAttr "id" jq
+  return $ case id of
+    Defined text -> text
+    Undefined -> "none"
 
-lineCurrentCell :: Fay ()
-lineCurrentCell = undefined
+getCurrentId :: Fay T.Text
+getCurrentId = select "#currentId" >>= getVal
 
-lineNextCell :: Fay ()
-lineNextCell = undefined
+setCurrentId :: T.Text -> Fay JQuery
+setCurrentId id = select "#currentId" >>= setVal id
 
-hasTable :: Fay ()
-hasTable = undefined
+getNextId :: T.Text -> T.Text -> Fay T.Text
+getNextId _ _ = return "1"
 
-keyDown :: Fay ()
-keyDown = undefined
+lineCurrentCell :: T.Text -> T.Text -> Fay ()
+lineCurrentCell _ _ = return ()
+
+lineNextCell :: T.Text -> T.Text -> Fay ()
+lineNextCell _ _ = return ()
+
+noid = "none"
+
+onKeydownListener :: Event -> Fay ()
+onKeydownListener e = do
+  currentId <- getCurrentId
+  if currentId == noid 
+    then return ()
+    else do
+      keycode <- getKeyCode e
+      nextId <- getNextId currentId keycode
+      if nextId == noid
+        then move e
+        else return ()
+
+move :: Event -> Fay ()
+move e = do
+  keycode <- getKeyCode e
+  currentId <- getCurrentId
+  nextId <- getNextId currentId keycode    
+  let current= T.concat ["#", currentId]
+      next = T.concat ["#", nextId]
+  select current>>= removeClass "current"
+  isEmptyCell current
+
+  emptyCurrent <- isEmptyCell current
+  if emptyCurrent
+    then return ()
+    else lineCurrentCell current keycode
+
+  emptyNext <- isEmptyCell next
+  if emptyNext
+    then setCurrentId noid
+    else do
+      lineNextCell next keycode
+      select next >>= addClass "current"
+      setCurrentId nextId
+
+  return ()
+
+getKeyCode :: Event -> Fay T.Text
+getKeyCode = ffi "%1['keyCode']"
+
+isEmptyCell :: T.Text -> Fay Bool
+isEmptyCell selector = do
+  len <- select selector >>= children >>= getLength
+  print len
+  return $ 1 <= len 
+
+getLength :: JQuery -> Fay Int
+getLength = ffi "%1['length']"
+
+
+
+
+
 
