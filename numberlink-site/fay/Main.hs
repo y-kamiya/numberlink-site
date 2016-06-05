@@ -11,11 +11,6 @@ import qualified Fay.Text as T
 import Data.Char (ord)
 import Data.Function
 
-keycodeLeft  = "37"
-keycodeUp    = "38"
-keycodeRight = "39"
-keycodeDown  = "40"
-
 data PuzzleState = PuzzleState {
     rowNum :: Int
   , colNum :: Int
@@ -32,17 +27,11 @@ addInt = ffi "Number(%1) + Number(%2)"
 subInt :: Int -> Int -> Int
 subInt = ffi "Number(%1) - Number(%2)"
 
-alert :: String -> Fay ()
-alert = ffi "alert(%1)"
+getKeyCode :: Event -> Fay T.Text
+getKeyCode = ffi "%1['keyCode']"
 
-console :: T.Text -> Fay ()
-console = ffi "console.log(%1)"
-
-this :: Fay JQuery
-this = ffi "this"
-
-charCodeOffset :: Int
-charCodeOffset = 96
+getLength :: JQuery -> Fay Int
+getLength = ffi "%1['length']"
 
 readInt :: T.Text -> Fay Int
 readInt = ffi "%1"
@@ -186,28 +175,32 @@ getNextId state =
 
 
 lineCurrentCell :: T.Text -> Int -> Fay ()
-lineCurrentCell _ _ = return ()
+lineCurrentCell selector 37 = void $ select selector >>= findSelector "td" >>= eq 2 >>= addClass "top"
+lineCurrentCell selector 38 = void $ select selector >>= findSelector "td" >>= eq 0 >>= addClass "right"
+lineCurrentCell selector 39 = void $ select selector >>= findSelector "td" >>= eq 1 >>= addClass "bottom"
+lineCurrentCell selector 40 = void $ select selector >>= findSelector "td" >>= eq 3 >>= addClass "left"
 
 lineNextCell :: T.Text -> Int -> Fay ()
-lineNextCell _ _ = return ()
+lineNextCell selector 37 = void $ select selector >>= findSelector "td" >>= eq 1 >>= addClass "bottom"
+lineNextCell selector 38 = void $ select selector >>= findSelector "td" >>= eq 3 >>= addClass "left"
+lineNextCell selector 39 = void $ select selector >>= findSelector "td" >>= eq 2 >>= addClass "top"
+lineNextCell selector 40 = void $ select selector >>= findSelector "td" >>= eq 0 >>= addClass "right"
 
 noid = "none"
 
 onKeydownListener :: Event -> Fay ()
 onKeydownListener e = do
   currentId <- getCurrentId
-  if currentId == noid
-    then return ()
-    else do
-      rowNum <- select "#rowNum" >>= getVal >>= readInt
-      colNum <- select "#colNum" >>= getVal >>= readInt
-      keycode <- getKeyCode e >>= readInt
-      id <- readInt currentId
-      let state = PuzzleState rowNum colNum keycode id
-          nextId = getNextId state
-      if nextId == noid
-        then return ()
-        else move state
+  when (existCell currentId) $ do
+    rowNum <- select "#rowNum" >>= getVal >>= readInt
+    colNum <- select "#colNum" >>= getVal >>= readInt
+    keycode <- getKeyCode e >>= readInt
+    id <- readInt currentId
+
+    let state = PuzzleState rowNum colNum keycode id
+    when (existCell $ getNextId state) $ move state
+
+  return ()
 
 move :: PuzzleState -> Fay ()
 move state = do
@@ -220,31 +213,24 @@ move state = do
   isEmptyCell current
 
   emptyCurrent <- isEmptyCell current
-  if emptyCurrent
-    then lineCurrentCell current (keycode state)
-    else return ()
+  when emptyCurrent $ lineCurrentCell current (keycode state)
 
   emptyNext <- isEmptyCell next
-  if emptyNext
-    then do
-      lineNextCell next (keycode state)
-      select next >>= addClass "current"
-      setCurrentId nextId
-    else setCurrentId noid
+  when emptyNext $ void $ do
+    lineNextCell next (keycode state)
+    select next >>= addClass "current"
+
+  setCurrentId nextId
 
   return ()
-
-getKeyCode :: Event -> Fay T.Text
-getKeyCode = ffi "%1['keyCode']"
 
 isEmptyCell :: T.Text -> Fay Bool
 isEmptyCell selector = do
   len <- select selector >>= children >>= getLength
   return $ 1 <= len
 
-getLength :: JQuery -> Fay Int
-getLength = ffi "%1['length']"
-
+existCell :: T.Text -> Bool
+existCell = (/= noid)
 
 
 
