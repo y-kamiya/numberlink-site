@@ -96,7 +96,7 @@ initCursor = do
   return ()
   where
     dispatch :: Event -> Fay Bool
-    dispatch _ = select "body" >>= trigger "keydown" >> return True
+    dispatch _ = select "body" >>= triggerHandler "keydown" >> return True
 
 
 loadField :: Fay Bool
