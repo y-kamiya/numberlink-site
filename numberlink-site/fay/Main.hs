@@ -36,6 +36,18 @@ getLength = ffi "%1['length']"
 readInt :: T.Text -> Fay Int
 readInt = ffi "%1"
 
+createKeydownEvent :: Int -> Event
+createKeydownEvent = ffi "jQuery.Event('keydown', {keyCode: %1})"
+
+triggerHandlerWithEvent :: Event -> JQuery -> Fay ()
+triggerHandlerWithEvent = ffi "%2['triggerHandler'](%1)"
+
+keycode2Int :: KeyCode -> Int
+keycode2Int KeyLeft  = 37
+keycode2Int KeyUp    = 38
+keycode2Int KeyRight = 39
+keycode2Int KeyDown  = 40
+
 chunksOf :: Int -> [Int] -> [[Int]]
 chunksOf n _ | n < 1 = []
 chunksOf n [] = []
@@ -55,9 +67,9 @@ main = ready $ do
   setCurrentId noid
   buttonCreateField >>= onClick createTable
   buttonSolve >>= onClick initEditor
-  -- select "body" >>= keydown print
 
-  -- select "#fielogld table td" >>= onClick start
+  select "body" >>= keydown print
+
   select "body" >>= keydown onKeydownListener
   return ()
 
@@ -89,14 +101,15 @@ buttonCursor = select "#cursors"
 initCursor :: Fay ()
 initCursor = do
   buttonCursor >>= removeClass "disabled"
-  select "#cursor-up" >>= onClick dispatch
-  select "#cursor-down" >>= onClick dispatch
-  select "#cursor-left" >>= onClick dispatch
-  select "#cursor-right" >>= onClick dispatch
+  select "#cursor-up" >>= onClick (dispatch KeyUp)
+  select "#cursor-down" >>= onClick (dispatch KeyDown)
+  select "#cursor-left" >>= onClick (dispatch KeyLeft)
+  select "#cursor-right" >>= onClick (dispatch KeyRight)
   return ()
   where
-    dispatch :: Event -> Fay Bool
-    dispatch _ = select "body" >>= triggerHandler "keydown" >> return True
+    dispatch :: KeyCode -> Event -> Fay Bool
+    dispatch keycode _ = let e = createKeydownEvent $ keycode2Int keycode
+                         in  select "body" >>= triggerHandlerWithEvent e >> return True
 
 
 loadField :: Fay Bool
