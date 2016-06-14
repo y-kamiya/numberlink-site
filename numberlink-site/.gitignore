@@ -17,4 +17,6 @@ cabal.sandbox.config
 *.hp
 .stack-work/
 
+resources/main.js
+
 
