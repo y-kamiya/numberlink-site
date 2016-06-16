@@ -156,8 +156,6 @@ move state = do
   let current = T.concat ["#", int2Text $ currentId state]
       nextId = getNextId state
       next = T.concat ["#", nextId]
-  print $ keycode state
-  print nextId
   select current >>= removeClass "current"
   isEmptyCell current
 
