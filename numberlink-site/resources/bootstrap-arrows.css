@@ -1,4 +1,4 @@
-.arrow, [class^="arrow-"]{display:inline-block;width:39px;height:56px;*margin-right:.3em;line-height:14px;vertical-align:text-top;background-image:url("../img/arrows.png");background-position:14px 14px;background-repeat:no-repeat;margin-top:1px;}
+.arrow, [class^="arrow-"]{display:inline-block;width:39px;height:56px;*margin-right:.3em;line-height:14px;vertical-align:text-top;background-image:url("arrows.png");background-position:14px 14px;background-repeat:no-repeat;margin-top:1px;}
 .arrow{background-position:-6px -44px;}
 .arrow-primary{background-position:-91px -44px;}
 .arrow-info{background-position:-176px -44px;}
