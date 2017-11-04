@@ -1,0 +1,35 @@
+{
+  "name": "numberlink-editor",
+  "version": "1.0.0",
+  "description": "numberlink editor",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -d -e src/index.js -t [ babelify es6.classes ] -o public/assets/js/index.js",
+    "watch": "watchify -t babelify src/index.js -o public/assets/js/index.js -v"
+  },
+  "author": "",
+  "license": "MIT",
+  "babel": {
+    "presets": [
+      "env",
+      "react"
+    ]
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-cli": "^6.0.0",
+    "babel-preset-react": "^6.11.1",
+    "babelify": "^7.3.0",
+    "browserify": "^13.0.1",
+    "watchify": "^3.7.0",
+    "jquery": "^2.1.4",
+    "bootstrap": "^3.3.5",
+    "bootswatch": "^3.3.7"
+  },
+  "dependencies": {
+    "flux": "^2.1.1",
+    "react": "^15.2.1",
+    "react-dom": "^15.2.1"
+  }
+}
